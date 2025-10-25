@@ -199,17 +199,19 @@ export default function Homepage({ darkMode, toggleDarkMode }) {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
               >
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`px-8 py-4 rounded-full font-semibold text-lg text-white transition-all ${
-                    darkMode
-                      ? "bg-purple-600 hover:bg-purple-500 shadow-lg"
-                      : "bg-purple-500 hover:bg-purple-600 shadow-lg"
-                  }`}
-                >
-                  Start Writing Now
-                </motion.button>
+               <Link to="/login">
+  <motion.button
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    className={`px-8 py-4 rounded-full font-semibold text-lg text-white transition-all ${
+      darkMode
+        ? "bg-purple-600 hover:bg-purple-500 shadow-lg"
+        : "bg-purple-500 hover:bg-purple-600 shadow-lg"
+    }`}
+  >
+    Start Writing Now
+  </motion.button>
+</Link>
               </motion.div>
             </motion.div>
 
@@ -326,5 +328,6 @@ export default function Homepage({ darkMode, toggleDarkMode }) {
     </div>
   );
 }
+
 
 
