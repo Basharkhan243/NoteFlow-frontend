@@ -12,7 +12,7 @@ import {
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../utils/api";
+import api from "../utils/api"; // make sure baseURL is set correctly
 
 export default function NotesPage({ darkMode, toggleDarkMode }) {
   const [notes, setNotes] = useState([]);
@@ -33,11 +33,14 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
     ? { background: "linear-gradient(135deg, #1f2937 0%, #111827 100%)" }
     : { background: "linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%)" };
 
-  // Fetch all notes
+  // =====================
+  // FETCH NOTES
+  // =====================
   const fetchNotes = async () => {
     try {
       setIsLoading(true);
-      const res = await api.get("/notes", {
+      // 🔹 Changed endpoint to match backend
+      const res = await api.get("/notes/getmynotes", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotes(res.data.data || []);
@@ -54,6 +57,9 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
     fetchNotes();
   }, [token]);
 
+  // =====================
+  // HANDLE FORM INPUT
+  // =====================
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setNewNote((prev) => ({
@@ -62,23 +68,29 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
     }));
   };
 
+  // =====================
+  // CREATE / UPDATE NOTE
+  // =====================
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       let res;
       if (editingId) {
+        // 🔹 Update note endpoint
         res = await api.put(`/notes/${editingId}`, newNote, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const updatedNote = res.data.data || res.data;
         setNotes(notes.map((n) => (n._id === editingId ? updatedNote : n)));
       } else {
+        // 🔹 Create note endpoint
         res = await api.post("/notes/createnote", newNote, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const createdNote = res.data.data || res.data;
         setNotes([...notes, createdNote]);
       }
+
       setNewNote({ title: "", content: "", isPublic: false });
       setEditingId(null);
     } catch (err) {
@@ -87,6 +99,9 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
     }
   };
 
+  // =====================
+  // EDIT / DELETE NOTE
+  // =====================
   const handleEdit = (note) => {
     setNewNote({
       title: note.title,
@@ -98,6 +113,7 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
 
   const handleDelete = async (id) => {
     try {
+      // 🔹 Delete note endpoint
       await api.delete(`/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -107,6 +123,9 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
     }
   };
 
+  // =====================
+  // LOGOUT
+  // =====================
   const handleLogout = async () => {
     try {
       await api.post("/users/logout", {}, { headers: { Authorization: `Bearer ${token}` } });
@@ -117,20 +136,27 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
     }
   };
 
+  // =====================
+  // SEARCH / FILTER
+  // =====================
   const filteredNotes = notes.filter(
     (note) =>
-      note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      note.content.toLowerCase().includes(searchTerm.toLowerCase())
+      // 🔹 Safe checks to prevent undefined errors
+      (note.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (note.content || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   useEffect(() => {
     if (!searchTerm.trim()) return setSuggestions([]);
     const matched = notes
-      .filter((n) => n.title.toLowerCase().includes(searchTerm.toLowerCase()))
+      .filter((n) => (n.title || "").toLowerCase().includes(searchTerm.toLowerCase()))
       .map((n) => n.title);
     setSuggestions([...new Set(matched)].slice(0, 5));
   }, [searchTerm, notes]);
 
+  // =====================
+  // RETURN UI
+  // =====================
   return (
     <div className="min-h-screen w-full transition-colors duration-500 overflow-hidden" style={backgroundStyle}>
       {/* Animated Background */}
@@ -155,7 +181,7 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
         </div>
 
         <div className="flex items-center gap-6">
-          {/* Search Bar */}
+          {/* Search */}
           <div className="relative">
             <input
               type="text"
@@ -200,7 +226,7 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
               <p className={darkMode ? "text-gray-400" : "text-gray-600"}>{editingId ? "Editing note..." : "Create and manage your thoughts"}</p>
             </div>
 
-            {/* Note Form */}
+            {/* Form */}
             <motion.form onSubmit={handleSubmit} className="mb-8 space-y-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
               <input type="text" name="title" placeholder="Note title..." value={newNote.title} onChange={handleInputChange} className={`w-full px-4 py-3 rounded-lg border transition-all duration-300 ${darkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"}`} required />
               <textarea name="content" placeholder="Write your thoughts here..." value={newNote.content} onChange={handleInputChange} rows="4" className={`w-full px-4 py-3 rounded-lg border transition-all duration-300 ${darkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"}`} required />
@@ -257,5 +283,3 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
     </div>
   );
 }
-
-
