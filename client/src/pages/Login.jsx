@@ -31,7 +31,7 @@ export default function LoginPage({ darkMode, toggleDarkMode }) {
     );
 
     // Store the token from response
-   const token = response.data.token || response.data.accessToken;
+   const token = response.data.token || response.data.accessToken || response.data?.data?.accessToken;;
 if (token) {
   localStorage.setItem('token', token);
   console.log("✅ Token stored:", token);   // <--- add this line
@@ -320,5 +320,6 @@ navigate("/notes");
     </div>
   );
 }
+
 
 
