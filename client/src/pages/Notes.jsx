@@ -27,7 +27,6 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
 
   // Background style matching your homepage
   const backgroundStyle = darkMode
@@ -37,12 +36,15 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
   const fetchNotes = async () => {
     try {
       setIsLoading(true);
-      const res = await api.get("/api/v1/notes/getmynotes", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setNotes(res.data.data || []);
+      const res = await api.get("/notes/getmynotes"); // ✅ Fixed: added leading slash
+      console.log('Notes response:', res.data);
+      setNotes(res.data.data || res.data || []);
     } catch (err) {
-      console.error("Failed to fetch notes", err.message);
+      console.error("Failed to fetch notes", err);
+      if (err.response?.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/login');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -64,18 +66,14 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
     e.preventDefault();
     try {
       if (editingId) {
-        const res = await api.put(`/api/v1/notes/${editingId}`, newNote, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const updated = res.data.note || res.data;
+        const res = await api.put(`/notes/${editingId}`, newNote); // ✅ Fixed: removed /api/v1 prefix
+        const updated = res.data.note || res.data.data || res.data;
         setNotes(
           notes.map((note) => (note._id === editingId ? updated : note))
         );
       } else {
-        const res = await api.post("/api/v1/notes/createnote", newNote, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const createdNote = res.data.note || res.data;
+        const res = await api.post("/notes/createnote", newNote); // ✅ Fixed: removed /api/v1 prefix
+        const createdNote = res.data.note || res.data.data || res.data;
         if (!createdNote || !createdNote.title) {
           alert("Invalid note data received from server.");
           return;
@@ -86,7 +84,7 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
       setNewNote({ title: "", content: "", isPublic: false });
       setEditingId(null);
     } catch (err) {
-      console.error("Error submitting note:", err.message);
+      console.error("Error submitting note:", err);
       alert("Something went wrong while saving the note.");
     }
   };
@@ -102,34 +100,31 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/api/v1/notes/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/notes/${id}`); // ✅ Fixed: removed /api/v1 prefix
       setNotes(notes.filter((note) => note._id !== id));
     } catch (err) {
-      console.error("Error deleting note:", err.message);
+      console.error("Error deleting note:", err);
     }
   };
 
   const handleLogout = async () => {
     try {
-      await api.post(
-        "/api/v1/users/logout",
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.post("/users/logout"); // ✅ Fixed: removed /api/v1 prefix
       localStorage.removeItem("token");
       navigate("/login");
     } catch (err) {
-      console.error("Logout failed:", err.message);
+      console.error("Logout failed:", err);
+      // Still logout locally even if server call fails
+      localStorage.removeItem("token");
+      navigate("/login");
     }
   };
 
   // Filter notes based on search term
   const filteredNotes = notes.filter(
     (note) =>
-      note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      note.content.toLowerCase().includes(searchTerm.toLowerCase())
+      note.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      note.content?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Suggestion list based on searchTerm
@@ -138,7 +133,7 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
       setSuggestions([]);
     } else {
       const matched = notes
-        .filter((n) => n.title.toLowerCase().includes(searchTerm.toLowerCase()))
+        .filter((n) => n.title?.toLowerCase().includes(searchTerm.toLowerCase()))
         .map((n) => n.title);
       setSuggestions([...new Set(matched)].slice(0, 5));
     }
