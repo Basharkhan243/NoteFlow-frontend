@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://noteflow-backend01.onrender.com';
 
 const instance = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`, // Add /api/v1 here
@@ -35,3 +35,4 @@ instance.interceptors.response.use(
 );
 
 export default instance;
+
