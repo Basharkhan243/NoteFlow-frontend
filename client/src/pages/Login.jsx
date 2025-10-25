@@ -31,11 +31,15 @@ export default function LoginPage({ darkMode, toggleDarkMode }) {
     );
 
     // Store the token from response
-    const token = response.data.token || response.data.accessToken;
-    if (token) {
-      localStorage.setItem('token', token);
-    }
-      navigate("/notes");
+   const token = response.data.token || response.data.accessToken;
+if (token) {
+  localStorage.setItem('token', token);
+  console.log("✅ Token stored:", token);   // <--- add this line
+} else {
+  console.warn("❌ No token found in response");
+}
+navigate("/notes");
+
     } catch (err) {
       if (err.response?.data?.message) {
         setError(err.response.data.message);
@@ -316,4 +320,5 @@ export default function LoginPage({ darkMode, toggleDarkMode }) {
     </div>
   );
 }
+
 
