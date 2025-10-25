@@ -73,7 +73,7 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
         const updatedNote = res.data.data || res.data;
         setNotes(notes.map((n) => (n._id === editingId ? updatedNote : n)));
       } else {
-        res = await api.post("/api/v1/notes/createnote", newNote, {
+        res = await api.post("/notes/createnote", newNote, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const createdNote = res.data.data || res.data;
@@ -257,4 +257,5 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
     </div>
   );
 }
+
 
