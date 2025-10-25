@@ -37,16 +37,18 @@ export default function SignupPage({ darkMode, toggleDarkMode }) {
 
     setLoading(true);
     try {
-      await api.post(
-        "/api/v1/users/signup",
-        { name, email, password },
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      // ✅ Fixed: removed /api/v1 prefix and extra config
+      const response = await api.post("/users/signup", { 
+        name, 
+        email, 
+        password 
+      });
+      
+      console.log('Signup response:', response.data);
+      
       navigate("/login", { state: { from: "signup", email } });
     } catch (err) {
+      console.error('Signup error:', err);
       setError(err.response?.data?.message || "Signup failed. Try again.");
     } finally {
       setLoading(false);
@@ -134,7 +136,7 @@ export default function SignupPage({ darkMode, toggleDarkMode }) {
               className={`p-2 rounded-full transition-all duration-300 ${
                 darkMode
                   ? "bg-gray-700 hover:bg-gray-600 text-white"
-                  : "bg-white hover:bg-gray-100 text-white shadow-md"
+                  : "bg-white hover:bg-gray-100 text-gray-700 shadow-md"
               }`}
             >
               <FiArrowLeft className="w-5 h-5" />
@@ -174,7 +176,7 @@ export default function SignupPage({ darkMode, toggleDarkMode }) {
               {darkMode ? (
                 <FiSun className="w-5 h-5 text-yellow-400" />
               ) : (
-                <FiMoon className="w-5 h-5 text-white" />
+                <FiMoon className="w-5 h-5 text-gray-700" />
               )}
             </motion.button>
 
@@ -320,9 +322,9 @@ export default function SignupPage({ darkMode, toggleDarkMode }) {
                   darkMode
                     ? "bg-purple-600 hover:bg-purple-500"
                     : "bg-purple-500 hover:bg-purple-600"
-                } shadow-lg`}
+                } shadow-lg ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                {loading ? "Processing..." : "Sign Up"}
+                {loading ? "Creating Account..." : "Sign Up"}
               </motion.button>
 
               <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
