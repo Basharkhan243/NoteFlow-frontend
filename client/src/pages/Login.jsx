@@ -24,16 +24,17 @@ export default function LoginPage({ darkMode, toggleDarkMode }) {
     setError(null);
 
     try {
-      await api.post(
-        "/api/v1/users/login",
-        { email, password },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+     const response = await api.post(
+      "/users/login",  //  endpoint - backend  "/log"
+      { email, password }
+      // Remove the extra config - api.js already handles this
+    );
+
+    // Store the token from response
+    const token = response.data.token || response.data.accessToken;
+    if (token) {
+      localStorage.setItem('token', token);
+    }
       navigate("/notes");
     } catch (err) {
       if (err.response?.data?.message) {
@@ -315,3 +316,4 @@ export default function LoginPage({ darkMode, toggleDarkMode }) {
     </div>
   );
 }
+
