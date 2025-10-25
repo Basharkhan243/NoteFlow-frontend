@@ -37,7 +37,7 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
   const fetchNotes = async () => {
     try {
       setIsLoading(true);
-      const res = await api.get("/api/v1/notes", {
+      const res = await api.get("/notes", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotes(res.data.data || []);
@@ -67,7 +67,7 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
     try {
       let res;
       if (editingId) {
-        res = await api.put(`/api/v1/notes/${editingId}`, newNote, {
+        res = await api.put(`/notes/${editingId}`, newNote, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const updatedNote = res.data.data || res.data;
@@ -98,7 +98,7 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/api/v1/notes/${id}`, {
+      await api.delete(`/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotes(notes.filter((n) => n._id !== id));
@@ -109,7 +109,7 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
 
   const handleLogout = async () => {
     try {
-      await api.post("/api/v1/users/logout", {}, { headers: { Authorization: `Bearer ${token}` } });
+      await api.post("/users/logout", {}, { headers: { Authorization: `Bearer ${token}` } });
       localStorage.removeItem("token");
       navigate("/login");
     } catch (err) {
@@ -257,3 +257,4 @@ export default function NotesPage({ darkMode, toggleDarkMode }) {
     </div>
   );
 }
+
