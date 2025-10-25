@@ -142,7 +142,7 @@ export default function Homepage({ darkMode, toggleDarkMode }) {
             >
               <Link
                 to="/signup"
-                className={`px-4 md:px-6 py-2 rounded-full font-medium text-white transition-all ${
+                className={`px-4 md:px-6  w-10 py-2 rounded-full font-medium text-white transition-all ${
                   darkMode
                     ? "bg-purple-600 hover:bg-purple-500"
                     : "bg-purple-500 hover:bg-purple-600 shadow-md"
@@ -326,4 +326,5 @@ export default function Homepage({ darkMode, toggleDarkMode }) {
     </div>
   );
 }
+
 
